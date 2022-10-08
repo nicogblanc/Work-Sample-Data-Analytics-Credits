@@ -1,0 +1,59 @@
+--Problema de negocio 2--
+
+La tabla PAYMENTS contiene información de pagos realizados en la plataforma ComproTodo.com. Dado el siguiente esquema:
+
+payment_id | DECIMAL(12,0)
+
+user_id | DECIMAL(12,0)
+
+creation_date | TIMESTAMP
+
+status | VARCHAR(50)
+
+amount | DECIMAL(10,2)
+
+--a. Cantidad de pagos para cada user_id--
+
+Select 
+user_id,
+count(payment_id) as cantidad_de_pagos
+from PAYMENTS
+group by 1
+order by cantidad_de_pagos desc
+
+b. Fecha de primer y último pago de cada user_id
+
+select
+user_id, 
+min(creation_date) as fecha_primer_pago,
+max(creation_date) as fecha_primer_pago
+from PAYMENTS
+group by 1
+
+c. Cantidad total de pagos que el usuario número 101 (user_id=101) realizó antes de la fecha ‘2019-10-01’
+
+select
+cast(user_id as numeric),
+count(payment_id) as cantidad_de_pagos
+from PAYMENTS
+where 1=1
+and cast(user_id as numeric) in (101)
+and creation_date <‘2019-10-01’
+
+d. Obtener para cada pago (payment_id), la cantidad de pagos que se realizaron previamente con la misma tarjeta de crédito usada en ese pago
+
+select
+payment_id,
+count(payment_id
+from PAYMENTS
+where 
+
+
+e. Obtener para cada pago (payment_id), la cantidad pagos aprobados (status=’approved’) que se realizaron previamente con la misma tarjeta de crédito usada en ese pago
+
+select
+
+from PAYMENTS
+
+where 1=1
+and status=’approved’
