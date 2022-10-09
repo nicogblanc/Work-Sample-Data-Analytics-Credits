@@ -21,7 +21,7 @@ from PAYMENTS
 group by 1
 order by cantidad_de_pagos desc
 
-b. Fecha de primer y último pago de cada user_id
+--b. Fecha de primer y último pago de cada user_id--
 
 select
 user_id, 
@@ -33,11 +33,11 @@ group by 1
 c. Cantidad total de pagos que el usuario número 101 (user_id=101) realizó antes de la fecha ‘2019-10-01’
 
 select
-cast(user_id as numeric),
+user_id,
 count(payment_id) as cantidad_de_pagos
 from PAYMENTS
 where 1=1
-and cast(user_id as numeric) in (101)
+and user_id in (101)
 and creation_date <‘2019-10-01’
 
 d. Obtener para cada pago (payment_id), la cantidad de pagos que se realizaron previamente con la misma tarjeta de crédito usada en ese pago
@@ -57,3 +57,42 @@ from PAYMENTS
 
 where 1=1
 and status=’approved’
+-----------------------------
+select 
+pay.cus_cust_id_buy as id_pagador,
+max(sub.ultimo_pago) as id_ultimo_pago,
+COUNTIF(PAY_CREATED_DATETIME < fecha_ultimo_pago)
+from
+(select PAY_CCD_CARD_ID,max(PAY_CREATED_DATETIME) as fecha_ultimo_pago, max(pay_payment_id) as ultimo_pago from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+where PAY_CCD_CARD_ID = '9119038986'
+group by 1) sub
+left join (select PAY_CCD_CARD_ID,pay_payment_id,cus_cust_id_buy,PAY_CREATED_DATETIME from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS
+where PAY_CCD_CARD_ID = '9119038986'
+) pay on pay.PAY_CCD_CARD_ID = sub.PAY_CCD_CARD_ID
+group by 1
+
+select 
+pay.cus_cust_id_buy as id_pagador,
+max(sub.ultimo_pago) as id_ultimo_pago,
+COUNT(case when PAY_CREATED_DATETIME < fecha_ultimo_pago then 1 end) as pagos_previos
+from
+(select PAY_CCD_CARD_ID,max(PAY_CREATED_DATETIME) as fecha_ultimo_pago, max(pay_payment_id) as ultimo_pago from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+where PAY_CCD_CARD_ID = '9119038986'
+group by 1) sub
+left join (select PAY_CCD_CARD_ID,pay_payment_id,cus_cust_id_buy,PAY_CREATED_DATETIME from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS
+where PAY_CCD_CARD_ID = '9119038986'
+) pay on pay.PAY_CCD_CARD_ID = sub.PAY_CCD_CARD_ID
+group by 1
+
+select 
+pay.cus_cust_id_buy as id_pagador,
+max(sub.ultimo_pago) as id_ultimo_pago,
+COUNT(case when pay.pay_payment_id <> sub.ultimo_pago then 1 end) as pagos_previos
+from
+(select PAY_CCD_CARD_ID,max(PAY_CREATED_DATETIME) as fecha_ultimo_pago, max(pay_payment_id) as ultimo_pago from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+where PAY_CCD_CARD_ID = '9119038986'
+group by 1) sub
+inner join (select PAY_CCD_CARD_ID,pay_payment_id,cus_cust_id_buy,PAY_CREATED_DATETIME from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS
+where PAY_CCD_CARD_ID = '9119038986'
+) pay on pay.PAY_CCD_CARD_ID = sub.PAY_CCD_CARD_ID
+group by 1
