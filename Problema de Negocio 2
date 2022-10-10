@@ -74,20 +74,28 @@ with tabla_1 as
 (select 
 PAY_CCD_CARD_ID,
 status,
-max(creation_date) as fecha_ultimo_pago, 
-max(payment_id) as ultimo_pago 
+PAY_PAYMENT_METHOD_TYPE_ID,
+max(payment_id) as ultimo_pago,
+user_id,
+max(creation_date) as fecha_ultimo_pago
 from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+where 1=1
 and status = 'approved'
+and PAY_PAYMENT_METHOD_TYPE_ID = 'credit_card' 
 group by 1,2),
 
 tabla_2 as 
 (select 
 PAY_CCD_CARD_ID,
+status,
+PAY_PAYMENT_METHOD_TYPE_ID,
 payment_id,
 user_id,
 creation_date 
 from PAYMENTS
+where 1=1
 and status = 'approved'
+and PAY_PAYMENT_METHOD_TYPE_ID = 'credit_card' 
 )
 
 select 
