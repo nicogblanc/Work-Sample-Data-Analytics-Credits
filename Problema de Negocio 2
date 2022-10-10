@@ -42,21 +42,60 @@ and creation_date <‘2019-10-01’
 
 d. Obtener para cada pago (payment_id), la cantidad de pagos que se realizaron previamente con la misma tarjeta de crédito usada en ese pago
 
-select
+with tabla_1 as 
+(select 
+PAY_CCD_CARD_ID,
+max(creation_date) as fecha_ultimo_pago, 
+max(payment_id) as ultimo_pago 
+from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+group by 1),
+
+tabla_2 as 
+(select 
+PAY_CCD_CARD_ID,
 payment_id,
-count(payment_id
+user_id,
+creation_date 
 from PAYMENTS
-where 
+)
+
+select 
+sub.ultimo_pago as id_ultimo_pago,
+COUNT(case when pay.pay_payment_id <> sub.ultimo_pago then 1 end) as pagos_previos
+from tabla_1 as sub
+inner join tabla_2 as pay on pay.PAY_CCD_CARD_ID = sub.PAY_CCD_CARD_ID
+group by 1
+
 
 
 e. Obtener para cada pago (payment_id), la cantidad pagos aprobados (status=’approved’) que se realizaron previamente con la misma tarjeta de crédito usada en ese pago
 
-select
+with tabla_1 as 
+(select 
+PAY_CCD_CARD_ID,
+status,
+max(creation_date) as fecha_ultimo_pago, 
+max(payment_id) as ultimo_pago 
+from meli-bi-data.WHOWNER.BT_MP_PAY_PAYMENTS 
+and status = 'approved'
+group by 1,2),
 
+tabla_2 as 
+(select 
+PAY_CCD_CARD_ID,
+payment_id,
+user_id,
+creation_date 
 from PAYMENTS
+and status = 'approved'
+)
 
-where 1=1
-and status=’approved’
+select 
+sub.ultimo_pago as id_ultimo_pago,
+COUNT(case when pay.pay_payment_id <> sub.ultimo_pago then 1 end) as pagos_previos
+from tabla_1 as sub
+inner join tabla_2 as pay on pay.PAY_CCD_CARD_ID = sub.PAY_CCD_CARD_ID
+group by 1
 -----------------------------
 select 
 pay.cus_cust_id_buy as id_pagador,
